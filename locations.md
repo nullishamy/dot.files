@@ -24,6 +24,10 @@ See GTK/README.md
 
 TBC
 
+### zsh
+
+`~/.zshrc`
+
 ## User
 
 ### Flameshot
