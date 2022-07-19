@@ -1,60 +1,95 @@
--- Init Plug
-local Plug = vim.fn['plug#']
-vim.call('plug#begin', '~/.config/nvim/plugged')
+-- Bootstrap Packer
+local fn = vim.fn
+local install_path = fn.stdpath('data') .. '/site/pack/packer/start/packer.nvim'
 
--- Theming
-Plug 'navarasu/onedark.nvim'
+local packer_bootstrap
+if fn.empty(fn.glob(install_path)) > 0 then
+	packer_bootstrap =
+		fn.system({ 'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path })
+end
 
--- LSP
-Plug 'neovim/nvim-lspconfig'
-Plug "williamboman/nvim-lsp-installer"
-Plug 'glepnir/lspsaga.nvim'
-Plug 'folke/lsp-colors.nvim'
+-- Init Packer
+return require('packer').startup(function(use)
+	-- Theme
+	use('navarasu/onedark.nvim')
 
--- CMP
-Plug 'hrsh7th/nvim-cmp'
-Plug 'hrsh7th/cmp-nvim-lsp'
-Plug 'hrsh7th/cmp-buffer'
-Plug 'hrsh7th/cmp-path'
-Plug 'saadparwaiz1/cmp_luasnip'
+	-- LSP
+	use('neovim/nvim-lspconfig')
+	use('williamboman/nvim-lsp-installer')
+	use('folke/lsp-colors.nvim')
+	use('jose-elias-alvarez/null-ls.nvim')
 
--- Treesitter
-Plug ('nvim-treesitter/nvim-treesitter', {['do'] = ':TSUpdate'})
-Plug 'nvim-treesitter/nvim-treesitter-textobjects'
-Plug 'p00f/nvim-ts-rainbow'
+	-- CMP
+	use('hrsh7th/nvim-cmp')
+	use('hrsh7th/cmp-nvim-lsp')
+	use('hrsh7th/cmp-buffer')
+	use('hrsh7th/cmp-path')
+	use('saadparwaiz1/cmp_luasnip')
 
--- Languages
-Plug 'simrat39/rust-tools.nvim'
+	-- Treesitter
+	use({ 'nvim-treesitter/nvim-treesitter', run = ':TSUpdate' })
+	use('nvim-treesitter/nvim-treesitter-textobjects')
+	use('p00f/nvim-ts-rainbow')
 
--- Snippets
-Plug 'honza/vim-snippets'
-Plug 'L3MON4D3/LuaSnip'
+	-- Languages
+	use('simrat39/rust-tools.nvim')
+	use({
+		'iamcco/markdown-preview.nvim',
+		run = function() vim.fn["mkdp#util#install"]() end,
+	})
 
--- Diagnostics
-Plug 'kyazdani42/nvim-web-devicons'
-Plug 'nullishamy/trouble.nvim'
+	-- Snippets
+	use('honza/vim-snippets')
+	use('L3MON4D3/LuaSnip')
 
--- Util
-Plug 'Pocco81/AutoSave.nvim'
-Plug 'jghauser/mkdir.nvim'
-Plug 'numToStr/Comment.nvim'
-Plug 'kyazdani42/nvim-tree.lua'
-Plug 'ggandor/leap.nvim'
+	-- Diagnostics
+	-- Using my fork for line wrapping and other features
+	use('nullishamy/trouble.nvim')
 
--- Misc
-Plug 'nvim-lua/plenary.nvim'
+	-- Util
+	use('Pocco81/AutoSave.nvim')
+	use('jghauser/mkdir.nvim')
+	use('numToStr/Comment.nvim')
+	use('nvim-neo-tree/neo-tree.nvim')
+	use('ggandor/leap.nvim')
+	use('windwp/nvim-autopairs')
+	use('folke/todo-comments.nvim')
+	use('beauwilliams/focus.nvim')
+	use('karb94/neoscroll.nvim')
+	use('famiu/bufdelete.nvim')
+	use('MunifTanjim/nui.nvim')
 
--- Selection
-Plug 'nvim-telescope/telescope.nvim'
+	-- Tpope utils
+	use('tpope/vim-sleuth')
+	use('tpope/vim-surround')
+	use('tpope/vim-repeat')
 
--- Statusline
-Plug 'nvim-lualine/lualine.nvim'
-Plug 'kyazdani42/nvim-web-devicons'
+	-- Misc
+	use('nvim-lua/plenary.nvim')
+	use('wbthomason/packer.nvim')
+	use('wakatime/vim-wakatime')
+	use('sheerun/vim-polyglot')
 
--- Bufferline
-Plug 'akinsho/bufferline.nvim'
+	-- Selection
+	use('nvim-telescope/telescope.nvim')
+	use('stevearc/dressing.nvim')
 
--- Git
-Plug 'tpope/vim-fugitive'
+	-- Statusline
+	use('nvim-lualine/lualine.nvim')
+	use('kyazdani42/nvim-web-devicons')
 
-vim.call('plug#end')
+	-- Bufferline
+	use('noib3/nvim-cokeline')
+
+	-- Git
+	use('lewis6991/gitsigns.nvim')
+
+	-- Sessions
+	use('Shatur/neovim-session-manager')
+
+	if packer_bootstrap then
+		-- If we just bootstrapped, sync.
+		-- This will 1) install packer as a dependency and 2) install the rest of the plugins
+		require('packer').sync()
+	end
+end)
