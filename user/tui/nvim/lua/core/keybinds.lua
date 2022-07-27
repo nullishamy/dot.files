@@ -22,16 +22,21 @@ map('', '<C-l>', '<Plug>(cokeline-focus-next)')
 map('', '<Leader>q', '<cmd>Bdelete<cr>')
 
 -- Navigation  controls
-map('', '<Leader>f', ':Telescope find_files<CR>')
-map('n', '<Leader>o', ':Telescope buffers<CR>')
-map('n', '<Leader>g', ':Neotree focus reveal<CR>')
+map('', '<Leader>f', '<cmd>Telescope find_files<cr>')
+map('n', '<Leader>o', '<cmd>Telescope buffers<cr>')
+map('n', '<Leader>g', '<cmd>Neotree focus reveal<cr>')
+
+-- Jump to start / end
+map('', 'H', '^')
+map('', 'L', '$')
 
 -- Hard close vim with ctrl q + q
-map('n', '<C-q>q', ':qa!<CR>')
+map('n', '<C-q>q', '<cmd>qa!<cr>')
 
 -- Terminal
-map('n', '<C-t>', ':term<CR>', { noremap = true }) -- open
-map('t', '<Esc>', '<C-\\><C-n>') -- exit
+map('n', '<C-t>', '<cmd>lua require("FTerm").toggle()<cr>')
+map('t', '<C-t>', '<C-\\><C-n><cmd>lua require("FTerm").toggle()<cr>')
+map('t', '<Esc>', '<C-\\><C-n>')
 
 -- Trouble
 map('n', '<Leader>t', '<cmd>Trouble workspace_diagnostics<cr>')
@@ -42,11 +47,19 @@ map('n', '<Leader>sd', '<cmd>SessionManager delete_session<cr>')
 map('n', '<Leader>ss', '<cmd>SessionManager save_current_session<cr>')
 
 -- Focus
-map('n', '<leader>h', ':FocusSplitLeft<CR>')
-map('n', '<leader>j', ':FocusSplitDown<CR>')
-map('n', '<leader>k', ':FocusSplitUp<CR>')
-map('n', '<leader>l', ':FocusSplitRight<CR>')
+map('n', '<leader>h', '<cmd>FocusSplitLeft<CR>')
+map('n', '<leader>j', '<cmd>FocusSplitDown<CR>')
+map('n', '<leader>k', '<cmd>FocusSplitUp<CR>')
+map('n', '<leader>l', '<cmd>FocusSplitRight<CR>')
+
+-- Winshift
+map('n', '<C-W>m', '<cmd>WinShift<cr>')
 
 -- Abbreviations
 abbrev('Git', 'Neotree focus source=git_status position=float')
-abbrev('Grep', 'lua require(\'telescope.builtin\').live_grep()')
+abbrev('Grep', function()
+  require('telescope.builtin').live_grep()
+end)
+abbrev('OrganiseImports', function()
+  require('diagnostic.util').organize_imports()
+end)

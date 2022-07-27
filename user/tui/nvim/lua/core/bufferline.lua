@@ -1,91 +1,106 @@
-local is_picking_focus = require('cokeline/mappings').is_picking_focus
-local is_picking_close = require('cokeline/mappings').is_picking_close
 local get_hex = require('cokeline/utils').get_hex
+local mappings = require('cokeline/mappings')
 
+local comments_fg = get_hex('Comment', 'fg')
 local red = vim.g.terminal_color_1
-local yellow = vim.g.terminal_color_4
-local space = { text = ' ' }
-local dark = get_hex('Normal', 'bg')
-local text = get_hex('Comment', 'fg')
-local grey = get_hex('ColorColumn', 'bg')
-local light = get_hex('Comment', 'fg')
-local highlighted = '#8bcd5b'
+local yellow = vim.g.terminal_color_3
+
+local components = {
+  space = {
+    text = ' ',
+    truncation = { priority = 1 },
+  },
+
+  two_spaces = {
+    text = '  ',
+    truncation = { priority = 1 },
+  },
+
+  separator = {
+    text = function(buffer)
+      return buffer.index ~= 1 and ' ▏ ' or ''
+    end,
+    truncation = { priority = 1 },
+  },
+
+  devicon = {
+    text = function(buffer)
+      return (mappings.is_picking_focus() or mappings.is_picking_close()) and buffer.pick_letter .. ' '
+        or buffer.devicon.icon
+    end,
+    fg = function(buffer)
+      return (mappings.is_picking_focus() and yellow) or (mappings.is_picking_close() and red) or buffer.devicon.color
+    end,
+    style = function(_)
+      return (mappings.is_picking_focus() or mappings.is_picking_close()) and 'italic,bold' or nil
+    end,
+    truncation = { priority = 1 },
+  },
+
+  index = {
+    text = function(buffer)
+      return buffer.index .. ': '
+    end,
+    truncation = { priority = 1 },
+  },
+
+  unique_prefix = {
+    text = function(buffer)
+      return buffer.unique_prefix
+    end,
+    fg = comments_fg,
+    style = 'italic',
+    truncation = {
+      priority = 3,
+      direction = 'left',
+    },
+  },
+
+  filename = {
+    text = function(buffer)
+      return buffer.filename
+    end,
+    style = function(buffer)
+      return (buffer.is_focused and 'bold,underline') or nil
+    end,
+    truncation = {
+      priority = 2,
+      direction = 'left',
+    },
+  },
+}
 
 require('cokeline').setup({
-	default_hl = {
-		fg = function(buffer)
-			if buffer.is_focused then
-				return dark
-			end
-			return text
-		end,
-		bg = function(buffer)
-			if buffer.is_focused then
-				return highlighted
-			end
-			return grey
-		end,
-	},
-	components = {
-		{
-			text = function(buffer)
-				if buffer.index ~= 1 then
-					return ''
-				end
-				return ''
-			end,
-			bg = function(buffer)
-				if buffer.is_focused then
-					return highlighted
-				end
-				return grey
-			end,
-			fg = dark,
-		},
-		space,
-		{
-			text = function(buffer)
-				if is_picking_focus() or is_picking_close() then
-					return buffer.pick_letter .. ' '
-				end
+  show_if_buffers_are_at_least = 1,
 
-				return buffer.devicon.icon
-			end,
-			fg = function(buffer)
-				if is_picking_focus() then
-					return yellow
-				end
-				if is_picking_close() then
-					return red
-				end
+  buffers = {
+    -- filter_valid = function(buffer) return buffer.type ~= 'terminal' end,
+    -- filter_visible = function(buffer) return buffer.type ~= 'terminal' end,
+    new_buffers_position = 'next',
+  },
 
-				if buffer.is_focused then
-					return dark
-				else
-					return light
-				end
-			end,
-			style = function(_)
-				return (is_picking_focus() or is_picking_close()) and 'italic,bold' or nil
-			end,
-		},
-		{
-			text = function(buffer)
-				return buffer.unique_prefix .. buffer.filename .. '⠀'
-			end,
-			style = function(buffer)
-				return buffer.is_focused and 'bold' or nil
-			end,
-		},
-		{
-			text = '',
-			fg = function(buffer)
-				if buffer.is_focused then
-					return highlighted
-				end
-				return grey
-			end,
-			bg = dark,
-		},
-	},
+  rendering = {
+    max_buffer_width = 30,
+  },
+
+  default_hl = {
+    fg = function(buffer)
+      return buffer.is_focused and get_hex('Normal', 'fg') or get_hex('Comment', 'fg')
+    end,
+    bg = get_hex('ColorColumn', 'bg'),
+  },
+
+  components = {
+    components.space,
+    components.separator,
+    components.space,
+    components.devicon,
+    components.space,
+    components.index,
+    components.unique_prefix,
+    components.filename,
+    components.diagnostics,
+    components.two_spaces,
+    components.space,
+  },
 })
